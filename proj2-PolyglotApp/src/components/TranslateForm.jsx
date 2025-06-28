@@ -8,7 +8,6 @@ export default function TranslateForm({ onTranslate }) {
     const handleSubmit = (e) => {
         e.preventDefault()
         onTranslate(text, language)
-        //API
     }
 
     return (
@@ -30,7 +29,7 @@ export default function TranslateForm({ onTranslate }) {
                         name="language"
                         value="french"
                         checked={language === 'french'}
-                        onChange={() => setLanguage(e.target.value)}
+                        onChange={(e) => setLanguage(e.target.value)}
                     />
                     French
                 </label>

@@ -1,5 +1,4 @@
 import parrotImg from "../images/parrot.png"
-import worldMapImg from "../images/worldmap.png"
 
 export default function Header() {
     return (
