@@ -1,5 +1,4 @@
 import { dates } from "./utils/dates"
-import { GoogleGenAI } from "@google/genai"
 
 const tickersArr = []
 
@@ -49,7 +48,7 @@ async function fetchStockData() {
 
             const response = await fetch(url)
             const data = await response.text()
-            const status = await response.status
+            const status = response.status
             console.log('Response status:', status)
             console.log('Response data:', data.substring(0, 200) + '...')
 
@@ -70,19 +69,17 @@ async function fetchStockData() {
 
 async function fetchReport(data) {
     try {
-        const ai = new GoogleGenAI({
-            apiKey: import.meta.env.VITE_GEMINI_API_KEY
-        })
+        const url = 'https://gemini-api-worker.fjavid68.workers.dev/'
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: `You are a trading guru. Given data on share prices over the past 3 days, 
-            write a report of no more than 100 words describing the stocks performance and recommending whether to buy, hold or sell. 
-            Stock data: ${data}`
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: ''
         })
-
-        const text = response.text
-        renderReport(text)
+        const data = await response.json()
+        console.log(data);
 
     } catch (error) {
         console.error('Error generating report:', error)
