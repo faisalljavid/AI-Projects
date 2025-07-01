@@ -40,27 +40,36 @@ async function fetchStockData() {
     document.querySelector('.action-panel').style.display = 'none'
     loadingArea.style.display = 'flex'
     try {
-        const stockData = await Promise.all(tickersArr.map(async (ticker) => {
+        const summaries = await Promise.all(tickersArr.map(async (ticker) => {
             const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${dates.startDate}/${dates.endDate}?apiKey=${import.meta.env.VITE_POLYGON_API_KEY}`
             console.log('API URL:', url)
-            console.log('API Key exists:', !!import.meta.env.VITE_POLYGON_API_KEY)
             console.log('Dates:', { startDate: dates.startDate, endDate: dates.endDate })
 
             const response = await fetch(url)
-            const data = await response.text()
-            const status = response.status
-            console.log('Response status:', status)
-            console.log('Response data:', data.substring(0, 200) + '...')
+            const json = await response.json()
+            const prices = json.results || []
 
-            if (status === 200) {
-                apiMessage.innerText = 'Creating report...'
-                return data
-            } else {
-                loadingArea.innerText = 'There was an error fetching stock data.'
-                console.error('API Error:', data)
+            if (prices.length < 3) {
+                loadingArea.innerText = `Not enough data for ${ticker}. Only ${prices.length} day(s) of data. Skipping.`
+                return ``
             }
+
+            const summary = prices.map(p =>
+                `Ticker: ${ticker} | Date: ${new Date(p.t).toISOString().slice(0, 10)} | Open: ${p.o}, Close: ${p.c}, High: ${p.h}, Low: ${p.l}`
+            ).join('\n')
+
+            return summary
         }))
-        fetchReport(stockData.join(''))
+
+        const combinedReport = summaries.filter(Boolean).join('\n\n')
+
+        if (combinedReport.trim().length === 0) {
+            loadingArea.innerText = 'No sufficient stock data to generate report.'
+            return
+        }
+        apiMessage.innerText = 'Creating report...'
+        fetchReport(combinedReport)
+
     } catch (err) {
         loadingArea.innerText = 'There was an error fetching stock data.'
         console.error('error: ', err)
@@ -76,10 +85,10 @@ async function fetchReport(data) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: ''
+            body: JSON.stringify({ message: data })
         })
-        const data = await response.json()
-        console.log(data);
+        const result = await response.json()
+        renderReport(result.reply)
 
     } catch (error) {
         console.error('Error generating report:', error)
