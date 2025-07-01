@@ -1,15 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 
-// const corsHeaders = {
-// 	'Access-Control-Allow-Origin': '*',
-// 	'Access-Control-Allow-Methods': 'POST, OPTIONS',
-// }
+const corsHeaders = {
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Methods': 'POST, OPTIONS',
+	'Access-Control-Allow-Headers': 'Content-Type'
+}
 
 export default {
 	async fetch(request, env, ctx) {
 
 		if (request.method === 'OPTIONS') {
-			return new Response(null)
+			return new Response(null, { headers: corsHeaders })
 		}
 
 		const ai = new GoogleGenAI({
@@ -23,9 +24,9 @@ export default {
 			})
 
 			const text = response.text
-			return new Response(JSON.stringify(text))
+			return new Response(JSON.stringify(text), { headers: corsHeaders })
 		} catch (error) {
-			console.error('Error:', error);
+			console.error('Error:', error, { headers: corsHeaders })
 		}
 
 	}
