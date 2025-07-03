@@ -74,11 +74,17 @@ async function fetchReport(data) {
             },
             body: JSON.stringify({ message: data })
         })
-        const result = await response.json()
-        renderReport(result.reply)
+
+        const responseData = await response.json()
+
+        if (!response.ok) {
+            throw new Error(`Worker Error: ${responseData.error}`)
+        }
+
+        renderReport(responseData.content)
 
     } catch (error) {
-        console.error('Error generating report:', error)
+        console.error(error.message)
         loadingArea.innerText = 'Unable to access AI. Please refresh and try again'
     }
 }
