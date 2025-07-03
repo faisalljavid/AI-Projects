@@ -12,6 +12,20 @@ export default {
 			return new Response(null, { headers: corsHeaders })
 		}
 
+		// Only process POST requests
+		if (request.method !== 'POST') {
+			return new Response(JSON.stringify(
+				{
+					error: `${request.method} method not allowed.`,
+
+				}),
+				{
+					status: 405,
+					headers: corsHeaders
+				}
+			)
+		}
+
 		const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 		const model = genAI.getGenerativeModel(
 			{ model: "gemini-2.5-flash" },
@@ -20,7 +34,8 @@ export default {
 			}
 		)
 
-		const systemInstruction = `You are a trading guru. Given data on share prices over the past 3 days, write a report of no more than 150 words describing the stocks performance and recommending whether to buy, hold or sell.`
+		const systemInstruction = `You are a trading guru. Given data on share prices over the past 3 days,
+		write a report of no more than 150 words describing the stocks performance and recommending whether to buy, hold or sell.`
 
 		try {
 			const reqBody = await request.json()
