@@ -1,12 +1,20 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HuggingFace</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/index.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HuggingFace</title>
+  <link rel="stylesheet" href="./src/App.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <audio id="speech" controls />
+  <img id="old-image" src="./src/images/old-photo.jpeg" alt="Old Age Pensioners Elderly Life by Pavlofox on Pixabay">
+  <img id="new-image">
+  <script src="utils.js"></script>
+  <script type="module" src="/src/index.js"></script>
+</body>
+
 </html>
