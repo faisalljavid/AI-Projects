@@ -1,4 +1,4 @@
-import openai from './config.js';
+import { openai, supabase } from './config.js';
 
 export async function createEmbedding(input) {
     try {
@@ -14,7 +14,12 @@ export async function createEmbedding(input) {
                 embedding: response.data[index].embedding
             }
         })
+
+        // Insert content and embedding into Supabase
+        await supabase.from('documents').insert(result)
+        console.log("Embedding and stroing complete!")
         return result
+
     } catch (error) {
         console.error('Error creating embedding:', error);
         throw error;

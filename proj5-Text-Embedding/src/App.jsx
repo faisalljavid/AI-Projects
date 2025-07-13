@@ -1,4 +1,5 @@
 import { createEmbedding } from './embeddingService.js';
+import podcasts from "./assets/contents.js"
 
 const input = [
   "Beyond Mars: speculating life on distant planets.",
@@ -12,7 +13,7 @@ const input = [
 export default function App() {
   async function handleClick() {
     try {
-      const embedding = await createEmbedding(input);
+      const embedding = await createEmbedding(podcasts);
       console.log(embedding);
     } catch (error) {
       console.error('Error:', error);
