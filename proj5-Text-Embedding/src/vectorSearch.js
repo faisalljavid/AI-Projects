@@ -17,7 +17,7 @@ export async function vectorSearch(input) {
             match_threshold: 0.3,
             match_count: 1,
         })
-        return data
+        return data[0].content
     } catch (error) {
         console.error('Error in vector search:', error);
         throw error;
