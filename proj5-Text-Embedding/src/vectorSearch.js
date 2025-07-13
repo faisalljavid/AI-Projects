@@ -14,7 +14,7 @@ export async function vectorSearch(input) {
         // Query Supabase for nearest vector match
         const { data } = await supabase.rpc('match_documents', {
             query_embedding: embedding,
-            match_threshold: 0.7,
+            match_threshold: 0.3,
             match_count: 1,
         })
         return data

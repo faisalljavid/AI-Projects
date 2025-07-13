@@ -4,7 +4,7 @@ import podcasts from "./assets/contents.js"
 import "./App.css"
 
 // User query about podcasts
-const query = "Jammin'n in the Big Easy"
+const query = "Beyond Mars"
 
 export default function App() {
   async function handleClickStore() {
