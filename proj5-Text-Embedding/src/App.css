@@ -1,0 +1,22 @@
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+button {
+    cursor: pointer;
+}
+
+.store-button {
+    padding: 12px;
+    width: 150px;
+    background-color: #FCBA29;
+}
+
+.search-button {
+    padding: 12px;
+    width: 150px;
+    background-color: bisque;
+}

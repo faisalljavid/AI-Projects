@@ -17,7 +17,7 @@ export async function createEmbedding(input) {
 
         // Insert content and embedding into Supabase
         await supabase.from('documents').insert(result)
-        console.log("Embedding and stroing complete!")
+        console.log("Embedding and storing complete!")
         return result
 
     } catch (error) {
