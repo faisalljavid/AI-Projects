@@ -4,7 +4,14 @@ import { createAndStoreEmbeddings } from './embeddingService.js';
 import { vectorSearch } from './vectorSearch.js';
 import './App.css';
 
-// UploadDB page for uploading/selecting DB
+function AppHeader() {
+  return (
+    <header className="app-header">
+      <h1 className="app-title">VectorMind</h1>
+    </header>
+  );
+}
+
 function UploadDB({ setDbName }) {
   const [file, setFile] = useState(null);
   const [name, setName] = useState('');
@@ -26,10 +33,8 @@ function UploadDB({ setDbName }) {
       setError('');
       setLoading(true);
       try {
-        // Store DB name in state and localStorage
         setDbName(name);
         localStorage.setItem('dbName', name);
-        // Create embeddings and store in Supabase
         await createAndStoreEmbeddings(file, name);
         setSuccess(true);
         setTimeout(() => {
@@ -45,13 +50,16 @@ function UploadDB({ setDbName }) {
 
   return (
     <main className="upload-db-page">
-      <h2>Upload Your Own Database</h2>
-      <input type="file" onChange={handleFileChange} />
-      <input type="text" placeholder="Database Name" value={name} onChange={handleNameChange} />
-      <button onClick={handleStore} disabled={!file || !name || loading}>Store</button>
-      {loading && <div>Processing and storing embeddings...</div>}
-      {success && <div className="success-msg">Database stored! Redirecting...</div>}
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      <AppHeader />
+      <div className="upload-db-card">
+        <h2>Upload Your Own Database</h2>
+        <input type="file" onChange={handleFileChange} />
+        <input type="text" placeholder="Database Name" value={name} onChange={handleNameChange} />
+        <button onClick={handleStore} disabled={!file || !name || loading}>Store</button>
+        {loading && <div>Processing and storing embeddings...</div>}
+        {success && <div className="success-msg">Database stored! Redirecting...</div>}
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+      </div>
     </main>
   );
 }
@@ -72,7 +80,7 @@ function Home({ dbName }) {
     try {
       const { answer, chatMessages: updatedHistory } = await vectorSearch(query, dbName, chatMessages);
       setResults([answer]);
-      setChatMessages(updatedHistory); // update history for next turn
+      setChatMessages(updatedHistory);
     } catch (err) {
       setError('Error: ' + (err.message || err));
     } finally {
@@ -81,29 +89,46 @@ function Home({ dbName }) {
   }
 
   return (
-    <main className="home-layout">
-      <div className="left">Using database <b>{dbName}</b></div>
-      <div className="center">
-        <form onSubmit={handleSearch} className="search-form">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            className="search-box"
-          />
-          <button type="submit" className="search-icon" disabled={loading}>🔍</button>
-        </form>
-        {loading && <div>Searching...</div>}
-        {error && <div style={{ color: 'red' }}>{error}</div>}
-        {results && (
-          <div className="results-box">
-            {results.map((r, i) => <div key={i}>{r}</div>)}
-          </div>
-        )}
+    <main className="home-page">
+      <AppHeader />
+
+      <div className="top-bar">
+        <div className="db-info">
+          <span className="db-text">Database: <strong>{dbName}</strong></span>
+        </div>
+        <button className="upload-btn" onClick={() => navigate('/upload-db')}>
+          Upload New Database
+        </button>
       </div>
-      <div className="right">
-        <button className="use-own-db" onClick={() => navigate('/upload-db')}>Use your own db</button>
+
+      <div className="search-container">
+        <div className="search-content">
+          <form onSubmit={handleSearch} className="search-form-new">
+            <div className="search-input-wrapper">
+              <input
+                type="text"
+                placeholder="Ask me anything about your database..."
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                className="search-input-new"
+              />
+              <button type="submit" className="search-btn-new" disabled={loading}>
+                {loading ? '...' : '🔍'}
+              </button>
+            </div>
+          </form>
+
+          {error && <div className="error-msg">{error}</div>}
+
+          {results && (
+            <div className="answer-box">
+              <h3>Answer</h3>
+              <div className="answer-content">
+                {results.map((r, i) => <div key={i}>{r}</div>)}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
