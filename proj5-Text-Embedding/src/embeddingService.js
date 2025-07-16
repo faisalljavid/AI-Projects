@@ -1,27 +1,31 @@
+import { splitDocument } from './chunkingText.js';
 import { openai, supabase } from './config.js';
 
-export async function createEmbedding(input) {
+export async function createAndStoreEmbeddings(document, tableName = 'movies') {
     try {
+        const chunkData = await splitDocument(document);
+        const textChunks = chunkData.map(doc => doc.pageContent);
         const response = await openai.embeddings.create({
             model: "text-embedding-3-small",
-            input,
+            input: textChunks,
             encoding_format: "float",
-        })
-
-        const result = input.map((textItem, index) => {
+        });
+        if (!response.data || !Array.isArray(response.data)) {
+            throw new Error('OpenAI response missing data array.');
+        }
+        const result = textChunks.map((textItem, index) => {
             return {
                 content: textItem,
                 embedding: response.data[index].embedding
-            }
-        })
-
-        // Insert content and embedding into Supabase
-        await supabase.from('documents').insert(result)
-        console.log("Embedding and storing complete!")
-        return result
-
+            };
+        });
+        const { error } = await supabase.from(tableName).insert(result);
+        if (error) {
+            throw new Error('Issue inserting data into the database.');
+        }
+        console.log("SUCCESS!");
     } catch (error) {
-        console.error('Error creating embedding:', error);
+        console.error('ERROR ' + error.message);
         throw error;
     }
-} 
+}
