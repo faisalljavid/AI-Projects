@@ -110,42 +110,6 @@ as $$
 $$;
 ```
 
-#### Step 4: Create Additional Database Tables (Optional)
-
-For each new database you want to create, follow this pattern:
-
-```sql
--- Replace 'your_db_name' with your actual database name
-create table your_db_name (
-  id bigserial primary key,
-  content text,
-  embedding vector(1536)
-);
-
--- Create corresponding search function
-create or replace function match_your_db_name (
-  query_embedding vector(1536),
-  match_threshold float,
-  match_count int
-)
-returns table (
-  id bigint,
-  content text,
-  similarity float
-)
-language sql stable
-as $$
-  select
-    your_db_name.id,
-    your_db_name.content,
-    1 - (your_db_name.embedding <=> query_embedding) as similarity
-  from your_db_name
-  where your_db_name.embedding <=> query_embedding < 1 - match_threshold
-  order by your_db_name.embedding <=> query_embedding
-  limit match_count;
-$$;
-```
-
 ### 4. Run the Application
 
 ```bash
@@ -155,6 +119,8 @@ npm run dev
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## 📖 Usage Guide
+
+> **Note:** Two sample data files are included in the `/src/assets` folder for testing and demonstration purposes.
 
 ### Uploading a Database
 
