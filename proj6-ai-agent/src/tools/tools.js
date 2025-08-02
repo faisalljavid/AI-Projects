@@ -1,7 +1,12 @@
 export async function getCurrentWeather() {
-    return "sunny, 72°F"
+    const weather = {
+        temperature: "40",
+        unit: "C",
+        forecast: "sunny"
+    }
+    return JSON.stringify(weather)
 }
 
 export async function getLocation() {
-    return "New York, NY"
+    return "Jalandhar, Punjab"
 }
