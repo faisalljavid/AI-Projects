@@ -15,7 +15,8 @@ const availableFunctions = {
 async function runAgent(query) {
 
     const systemPrompt = `
-    You cycle through Thought, Action, PAUSE, Observation. At the end of the loop you output a final Answer. Your final answer should be highly specific to the observations you have from running
+    You cycle through Thought, Action, PAUSE, Observation. At the end of the loop you output a final Answer. 
+    Your final answer should be highly specific to the observations you have from running
     the actions.
     1. Thought: Describe your thoughts about the question you have been asked.
     2. Action: run one of the actions available to you - then return PAUSE.
@@ -87,7 +88,7 @@ async function runAgent(query) {
             const actions = actionRegex.exec(foundActionStr)
             const [_, action, actionArg] = actions
 
-            if (!availableFunctions.hasOwnProperty(action)) {
+            if (!(action in availableFunctions)) {
                 throw new Error(`Unknown action: ${action}: ${actionArg}`)
             }
 
