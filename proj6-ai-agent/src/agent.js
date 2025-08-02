@@ -6,6 +6,12 @@ export const openai = new OpenAI({
     dangerouslyAllowBrowser: true
 })
 
+const availableFunctions = {
+    getCurrentWeather,
+    getLocation
+}
+
+
 async function runAgent(query) {
 
     const systemPrompt = `
@@ -44,22 +50,60 @@ async function runAgent(query) {
     You then output:
     Answer: <Suggested activities based on sunny weather that are highly specific to New York City and surrounding areas.>
     `
+    const messages = [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: query }
+    ]
 
-    const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-            {
-                role: "system", content: systemPrompt
-            },
-            {
-                role: "user",
-                content: query
+    const MAX_ITERATIONS = 5
+    const actionRegex = /^\s*Action: (\w+): (.*)$/
+
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+        console.log(`Iteration #${i + 1}`);
+
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages
+        })
+
+        /**
+         * PLAN:
+         * 1. Split the string on the newline character \n
+         * 2. Search through the array of strings for one that has "Action:"
+         * 3. Parse the action (function and parameter) from the string
+         * 4. Calling the function
+         * 5. Add an "Obversation" message with the results of the function call
+         */
+
+        const responseText = response.choices[0].message.content
+        console.log(responseText)
+
+        messages.push({ role: "assistant", content: responseText })
+
+        const responseLines = responseText.split('\n')
+        const foundActionStr = responseLines.find(str => actionRegex.test(str))
+
+        if (foundActionStr) {
+            const actions = actionRegex.exec(foundActionStr)
+            const [_, action, actionArg] = actions
+
+            if (!availableFunctions.hasOwnProperty(action)) {
+                throw new Error(`Unknown action: ${action}: ${actionArg}`)
             }
-        ]
-    })
 
-    console.log(response.choices[0].message.content)
+            console.log(`Calling function ${action} with argument ${actionArg}`);
+
+
+            const observation = await availableFunctions[action](actionArg)
+            messages.push({ role: "assistant", content: `Observation: ${observation}` })
+        } else {
+            console.log("Agent finished with task")
+            return responseText
+        }
+    }
 
 }
 
-runAgent("What book should I read next? I like self-help books.") // This line runs immediately when the file is imported
+
+// This line runs immediately when the file is imported
+console.log(await runAgent("What are some activity ideas that I can do this afternoon based on my location and weather?"))
