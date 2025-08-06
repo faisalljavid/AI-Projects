@@ -1,5 +1,6 @@
 import "./agent.js"
+import './App.css';
 
 export default function App() {
-  return <div>Check console for results</div>
+  return <div></div>
 }
