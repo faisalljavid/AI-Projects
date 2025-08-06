@@ -46,11 +46,12 @@ async function runAgent(query) {
          */
 
         // const responseText = response.choices[0].message.content
-        console.log(response.choices[0])
         const { finish_reason: finishReason, message } = response.choices[0]
         const { tool_calls: toolCalls } = message
+        console.log(toolCalls)
+
         messages.push(message)
-        
+
         if (finishReason === "stop") {
             console.log(message.content)
             console.log("AGENT ENDING")
@@ -63,7 +64,10 @@ async function runAgent(query) {
                 // call the function
                 const functionName = toolCall.function.name
                 const functionToCall = availableFunctions[functionName]
-                const functionResponse = await functionToCall()
+                const functionArgs = JSON.parse(toolCall.function.arguments)
+                const functionResponse = await functionToCall(functionArgs)
+                console.log(functionResponse)
+
                 console.log(functionResponse)
                 messages.push({
                     tool_call_id: toolCall.id,
@@ -74,10 +78,9 @@ async function runAgent(query) {
             }
         }
     }
-
 }
 
 
 // This line runs immediately when the file is imported
-await runAgent("What's the current weather in Jalandhar and New York and Oslo?")
+await runAgent("What's the current weather in my current location?")
 
